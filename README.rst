@@ -7,13 +7,13 @@ Started on 2023-08-18
 
 
 Features (Optional)
------
+--------------------
 
 - List some features
 - From this repository
 
 Installation
------
+------------
 To install rab_the_bit, follow these steps:
 
     1. Clone the repository: ``git clone https://github.com/vliz-be-opsci/py-rabbit.git``
@@ -38,7 +38,7 @@ For more detailed information on the usage of rab_the_bit, refer to the `officia
 
 
 Contributing
------
+------------
 
 We welcome contributions from the community to enhance rab_the_bit. If you'd like to contribute, please follow these guidelines:
 
@@ -51,7 +51,7 @@ For more information on contributing to Pykg2tbl, please refer to the `contribut
 
 
 Getting Started
------
+---------------
 Start using this project with poetry
 
 

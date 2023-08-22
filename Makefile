@@ -1,6 +1,6 @@
 TEST_PATH = ./tests/
 FLAKE8_EXCLUDE = venv,.venv,.eggs,.tox,.git,__pycache__,*.pyc
-PROJECT = py-rabbit
+PROJECT = rab_the_bit
 AUTHOR = João Santos
 
 .PHONY: build docs clean install docker-build

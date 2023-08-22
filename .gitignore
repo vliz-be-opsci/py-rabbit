@@ -1,0 +1,3 @@
+dist/
+.pytest*
+*_cache*
