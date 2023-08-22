@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "py_rabbit"
+name = "rab_the_bit"
 version = "0.0.1"
 description = "A wrapper around Kombu to use RabbitMQ, specialy on docker images"
 authors = ["Vlaams Instituut voor de Zee (VLIZ), João Santos <jotaflame@gmail.com>"]
 readme = "README.rst"
-packages = [{include = "py_rabbit"}]
+packages = [{include = "rab_the_bit"}]
 license = "MIT"
 
 repository = "https://github.com/vliz-be-opsci/py-rabbit"
@@ -49,7 +49,7 @@ python-dotenv = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]
-py_rabbit = "py_rabbit.__main__:main"
+rab_the_bit = "rab_the_bit.__main__:main"
 
 [build-system]
 requires = ["setuptools","poetry"]

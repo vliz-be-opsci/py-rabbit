@@ -1,4 +1,4 @@
-py-rabbit
+rab_the_bit
 ===================================
 
 A wrapper around Kombu to use RabbitMQ, specialy on docker images
@@ -14,33 +14,33 @@ Features (Optional)
 
 Installation
 -----
-To install py-rabbit, follow these steps:
+To install rab_the_bit, follow these steps:
 
     1. Clone the repository: ``git clone https://github.com/vliz-be-opsci/py-rabbit.git``
-    2. Navigate to the project directory: ``cd py-rabbit``
+    2. Navigate to the project directory: ``cd rab_the_bit``
     3. Install the required dependencies: ``make init``
     4. (Optional) Install additional dependencies for development: ``make init-dev``
 
 Usage
 -----
-Here's an example of how to use py-rabbit:
+Here's an example of how to use rab_the_bit:
 
 .. code-block:: python
 
-    import py-rabbit
+    import rab_the_bit
 
     # Implement a code example
 
 
 
-For more detailed information on the usage of py-rabbit, refer to the `official documentation <https://open-science.vliz.be/py-rabbit/>`.
+For more detailed information on the usage of rab_the_bit, refer to the `official documentation <https://open-science.vliz.be/rab_the_bit/>`.
 
 
 
 Contributing
 -----
 
-We welcome contributions from the community to enhance py-rabbit. If you'd like to contribute, please follow these guidelines:
+We welcome contributions from the community to enhance rab_the_bit. If you'd like to contribute, please follow these guidelines:
 
     1. Fork the repository and create a new branch for your feature or bug fix.
     2. Make your changes and ensure that the code adheres to the project's coding style.
