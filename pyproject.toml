@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "py_rabbit"
+version = "0.0.1"
+description = "A wrapper around Kombu to use RabbitMQ, specialy on docker images"
+authors = ["Vlaams Instituut voor de Zee (VLIZ), João Santos <jotaflame@gmail.com>"]
+readme = "README.rst"
+packages = [{include = "py_rabbit"}]
+license = "MIT"
+
+repository = "https://github.com/vliz-be-opsci/py-rabbit"
+classifiers = [
+    # Trove classifiers
+    # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8.1"
+kombu = "*"
+
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "*"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+poetry = "*"
+pre-commit = "*"
+isort = "*"
+black = "*"
+flake8 = "*"
+
+[tool.poetry.group.tests]
+optional = true
+
+[tool.poetry.group.tests.dependencies]
+pyyaml = "*"
+pytest = "*"
+coverage = "*"
+python-dotenv = "*"
+pytest-cov = "*"
+
+[tool.poetry.scripts]
+py_rabbit = "py_rabbit.__main__:main"
+
+[build-system]
+requires = ["setuptools","poetry"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests",]
+pythonpath = ["."]
