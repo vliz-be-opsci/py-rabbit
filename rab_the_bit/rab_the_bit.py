@@ -101,6 +101,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         connection_args={},
         exchange_args={"type": "topic"},
         queue_args={},
+        log=None,
+        errback=None,
     ):
         """
         Initializes the RabbitConsumerProducer with the given parameters.
@@ -114,7 +116,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         :param exchange_args: Additional arguments for the Exchange.
         :param queue_args: Additional arguments for the Queue.
         """
-
+        self.log = log
+        self.errback = errback  # to be instannciated
         # Connection configuration
         connection_args.update({"hostname": amqp_url})
         self.connection = Connection(**connection_args)
@@ -140,6 +143,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             queue_name=queue_to_deliver,
             connection_args=connection_args,
             exchange_args=exchange_args,
+            log=self.log,
+            errback=self.errback,
         )
 
     def get_consumers(self, Consumer=Consumer, channel=None):
@@ -201,6 +206,7 @@ class RabbitConsumer(ConsumerMixin):
         exchange_args={"type": "topic"},
         queue_args={},
         log=None,
+        errback=None,
         msg_proc: callable = None,
     ):
         """
@@ -217,6 +223,7 @@ class RabbitConsumer(ConsumerMixin):
         """
 
         self.log = log
+        self.errback = errback  # to be instannciated
         connection_args.update({"hostname": amqp_url})
         exchange_args.update({"name": exchange_name})
 
