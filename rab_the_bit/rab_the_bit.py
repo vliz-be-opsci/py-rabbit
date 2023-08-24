@@ -200,10 +200,8 @@ class RabbitConsumer(ConsumerMixin):
     def __init__(
         self,
         amqp_url,
-        exchange_name,
         queue_name,
         connection_args={},
-        exchange_args={"type": "topic"},
         queue_args={},
         log=None,
         errback=None,
@@ -225,14 +223,11 @@ class RabbitConsumer(ConsumerMixin):
         self.log = log
         self.errback = errback  # to be instannciated
         connection_args.update({"hostname": amqp_url})
-        exchange_args.update({"name": exchange_name})
 
         self.connection = Connection(**connection_args)
-        self.exchange = Exchange(**exchange_args)
         queue_args.update(
             {
                 "name": queue_name,
-                "exchange": self.exchange,
                 "channel": self.connection,
             }
         )
