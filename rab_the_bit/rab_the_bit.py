@@ -255,7 +255,12 @@ class RabbitConsumer(ConsumerMixin):
         :param message: The message to process.
         """
         # Custom logic to process the received message
-        message.ack()  # Acknowledge the message to remove it from the queue
+        try:
+            message.ack()  # Acknowledge the message to remove it from the queue
+        except Exception as e:
+            self.error(f"Message ack failed: {e}")
+            self.log.error(traceback.format_exc())
+            return
 
     def start_consuming(self):
         with self.connection.Consumer(self.queue) as consumer:
