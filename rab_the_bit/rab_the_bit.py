@@ -136,7 +136,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             self.exchange_to_consume = self.bind_to_keys(
                 queue_args["routing_key"], self.exchange_to_consume
             )
-            queue_args["routing_key"] = self.source_keys
+            queue_args["bindings"] = self.source_keys
 
         queue_args.update(
             {"name": queue_to_consume, "channel": self.connection}
@@ -146,7 +146,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         # Producer Configuration, where to deliver messages
         self.rabbit_producer = RabbitProducer(
             amqp_url,
-            exchange_name=self.exchange_to_deliver,
+            exchange_name=exchange_to_deliver,
             queue_name=queue_to_deliver,
             connection_args=connection_args,
             exchange_args=exchange_args,
@@ -202,8 +202,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
     def bind_to_keys(self, keys, exchange):
         # takes the list of routing keys in the config file
         # and create a queue bound to them.
-        if not isinstance(keys, list):
-            keys = [keys]
+        if "[" in keys:
+            keys = json.loads(keys)
         self.log.info("Creating queue and binding keys")
         topic_binds = []
         for key in keys:
@@ -258,8 +258,9 @@ class RabbitConsumer(ConsumerMixin):
         )
         if "routing_key" in queue_args:
             self.bind_to_keys(queue_args["routing_key"])
-            queue_args["routing_key"] = self.source_keys
-
+            queue_args["bindings"] = self.source_keys
+            del queue_args["routing_key"]
+        queue_args["exchange"] = self.exchange
         self.queue = Queue(**queue_args)
         self.msg_proc = msg_proc  # To also be declare outside
 
@@ -275,25 +276,9 @@ class RabbitConsumer(ConsumerMixin):
             Consumer(self.queue, callbacks=[self.on_message], accept=["json"]),
         ]
 
-    def process_message(self, body, message):
-        """
-        Processes the received message and acknowledges it.
-
-        :param body: The body of the message.
-        :param message: The message to process.
-        """
-        # Custom logic to process the received message
-        try:
-            # Acknowledge the message to remove it from the queue
-            message.ack()
-        except Exception as e:
-            self.error(f"Message ack failed: {e}")
-            self.log.error(traceback.format_exc())
-            return
-
     def start_consuming(self):
         with self.connection.Consumer(self.queue) as consumer:
-            consumer.register_callback(self.process_message)
+            consumer.register_callback(self.on_message)
             consumer.consume()
 
     def unknown_to_dict_list(self, body):
@@ -347,7 +332,6 @@ class RabbitConsumer(ConsumerMixin):
         try:
             for msg in msg_dict_list:
                 self.msg_proc.proc_message(msg)
-
         except Exception as err:
             if self.log:
                 self.log.error(f"Error in message consumer: {err}")
@@ -356,8 +340,8 @@ class RabbitConsumer(ConsumerMixin):
     def bind_to_keys(self, keys):
         # takes the list of routing keys in the config file
         # and create a queue bound to them.
-        if not isinstance(keys, list):
-            keys = [keys]
+        if "[" in keys:
+            keys = json.loads(keys)
         self.log.info("Creating queue and binding keys")
         topic_binds = []
         for key in keys:
