@@ -48,7 +48,6 @@ class RabbitProducer:
             {
                 "name": queue_name,
                 "exchange": self.exchange,
-                "channel": self.connection,
             }
         )
 
@@ -139,7 +138,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             queue_args["bindings"] = self.source_keys
 
         queue_args.update(
-            {"name": queue_to_consume, "channel": self.connection}
+            {"name": queue_to_consume}
         )
         self.consumer_queue = Queue(**queue_args)
 
@@ -255,7 +254,6 @@ class RabbitConsumer(ConsumerMixin):
         queue_args.update(
             {
                 "name": queue_name,
-                "channel": self.connection,
             }
         )
         if "routing_key" in queue_args:
