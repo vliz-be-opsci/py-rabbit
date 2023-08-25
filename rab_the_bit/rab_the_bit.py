@@ -40,9 +40,15 @@ class RabbitProducer:
         self.errback = errback  # to be instannciated
 
         connection_args.update({"hostname": amqp_url})
-        exchange_args.update({"name": exchange_name})
-
         self.connection = Connection(**connection_args)
+
+        exchange_args.update(
+            {
+                "name": exchange_name,
+                "channel": self.connection,
+            }
+        )
+
         self.exchange = Exchange(**exchange_args)
         queue_args.update(
             {
@@ -137,9 +143,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             )
             queue_args["bindings"] = self.source_keys
 
-        queue_args.update(
-            {"name": queue_to_consume}
-        )
+        queue_args.update({"name": queue_to_consume})
         self.consumer_queue = Queue(**queue_args)
 
         # Producer Configuration, where to deliver messages
