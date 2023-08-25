@@ -204,6 +204,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         # and create a queue bound to them.
         if "[" in keys:
             keys = json.loads(keys)
+        if not isinstance(keys, list):
+            keys = [keys]
         self.log.info("Creating queue and binding keys")
         topic_binds = []
         for key in keys:
@@ -342,6 +344,8 @@ class RabbitConsumer(ConsumerMixin):
         # and create a queue bound to them.
         if "[" in keys:
             keys = json.loads(keys)
+        if not isinstance(keys, list):
+            keys = [keys]
         self.log.info("Creating queue and binding keys")
         topic_binds = []
         for key in keys:
