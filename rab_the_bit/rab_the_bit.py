@@ -54,6 +54,7 @@ class RabbitProducer:
             {
                 "name": queue_name,
                 "exchange": self.exchange,
+                "channel": self.connection,
             }
         )
 
@@ -134,7 +135,12 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         # The queue drinks from the exchange, keeps in memory until read upon.
 
         # Consumer configuration, where to get messages from
-        exchange_args.update({"name": exchange_to_consume})
+        exchange_args.update(
+            {
+                "name": exchange_to_consume,
+                "channel": self.connection,
+            }
+        )
         self.exchange_to_consume = Exchange(**exchange_args)
 
         if "routing_key" in queue_args:
@@ -143,7 +149,12 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             )
             queue_args["bindings"] = self.source_keys
 
-        queue_args.update({"name": queue_to_consume})
+        queue_args.update(
+            {
+                "name": queue_to_consume,
+                "channel": self.connection,
+            }
+        )
         self.consumer_queue = Queue(**queue_args)
 
         # Producer Configuration, where to deliver messages
@@ -252,8 +263,14 @@ class RabbitConsumer(ConsumerMixin):
         self.log = log
         self.errback = errback  # to be instannciated
         connection_args.update({"hostname": amqp_url})
-        exchange_args.update({"name": exchange_name})
         self.connection = Connection(**connection_args)
+        exchange_args.update(
+            {
+                "name": exchange_name,
+                "channel": self.connection,
+            }
+        )
+
         self.exchange = Exchange(**exchange_args)
         queue_args.update(
             {
