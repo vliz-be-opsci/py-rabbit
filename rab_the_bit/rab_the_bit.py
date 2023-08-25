@@ -1,7 +1,7 @@
 import json
 import traceback
 
-from kombu import Connection, Exchange, Queue
+from kombu import Connection, Exchange, Queue, binding
 from kombu.mixins import Consumer, ConsumerMixin, ConsumerProducerMixin
 
 
@@ -129,14 +129,21 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         # The queue drinks from the exchange, keeps in memory until read upon.
 
         # Consumer configuration, where to get messages from
-        self.exchange_to_consume = exchange_to_consume
+        exchange_args.update({"name": exchange_to_consume})
+        self.exchange_to_consume = Exchange(**exchange_args)
+
+        if "routing_key" in queue_args:
+            self.exchange_to_consume = self.bind_to_keys(
+                queue_args["routing_key"], self.exchange_to_consume
+            )
+            queue_args["routing_key"] = self.source_keys
+
         queue_args.update(
             {"name": queue_to_consume, "channel": self.connection}
         )
         self.consumer_queue = Queue(**queue_args)
 
         # Producer Configuration, where to deliver messages
-        self.exchange_to_deliver = exchange_to_deliver
         self.rabbit_producer = RabbitProducer(
             amqp_url,
             exchange_name=self.exchange_to_deliver,
@@ -146,6 +153,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
             log=self.log,
             errback=self.errback,
         )
+        self.exchange_to_deliver = self.rabbit_producer.exchange
 
     def get_consumers(self, Consumer=Consumer, channel=None):
         """
@@ -191,6 +199,20 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
 
         return
 
+    def bind_to_keys(self, keys, exchange):
+        # takes the list of routing keys in the config file
+        # and create a queue bound to them.
+        if not isinstance(keys, list):
+            keys = [keys]
+        self.log.info("Creating queue and binding keys")
+        topic_binds = []
+        for key in keys:
+            self.log.info("    -Key: %s", key)
+            topic_bind = binding(exchange, routing_key=key)
+            topic_binds.append(topic_bind)
+        self.source_keys = topic_binds
+        return exchange
+
 
 class RabbitConsumer(ConsumerMixin):
     """
@@ -200,8 +222,10 @@ class RabbitConsumer(ConsumerMixin):
     def __init__(
         self,
         amqp_url,
+        exchange_name,
         queue_name,
         connection_args={},
+        exchange_args={"type": "topic"},
         queue_args={},
         log=None,
         errback=None,
@@ -223,14 +247,18 @@ class RabbitConsumer(ConsumerMixin):
         self.log = log
         self.errback = errback  # to be instannciated
         connection_args.update({"hostname": amqp_url})
-
+        exchange_args.update({"name": exchange_name})
         self.connection = Connection(**connection_args)
+        self.exchange = Exchange(**exchange_args)
         queue_args.update(
             {
                 "name": queue_name,
                 "channel": self.connection,
             }
         )
+        if "routing_key" in queue_args:
+            self.bind_to_keys(queue_args["routing_key"])
+            queue_args["routing_key"] = self.source_keys
 
         self.queue = Queue(**queue_args)
         self.msg_proc = msg_proc  # To also be declare outside
@@ -256,7 +284,8 @@ class RabbitConsumer(ConsumerMixin):
         """
         # Custom logic to process the received message
         try:
-            message.ack()  # Acknowledge the message to remove it from the queue
+            # Acknowledge the message to remove it from the queue
+            message.ack()
         except Exception as e:
             self.error(f"Message ack failed: {e}")
             self.log.error(traceback.format_exc())
@@ -323,3 +352,16 @@ class RabbitConsumer(ConsumerMixin):
             if self.log:
                 self.log.error(f"Error in message consumer: {err}")
                 self.log.error(traceback.format_exc())
+
+    def bind_to_keys(self, keys):
+        # takes the list of routing keys in the config file
+        # and create a queue bound to them.
+        if not isinstance(keys, list):
+            keys = [keys]
+        self.log.info("Creating queue and binding keys")
+        topic_binds = []
+        for key in keys:
+            self.log.info("    -Key: %s", key)
+            topic_bind = binding(self.exchange, routing_key=key)
+            topic_binds.append(topic_bind)
+        self.source_keys = topic_binds
