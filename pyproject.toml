@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rab_the_bit"
-version = "0.0.9"
+version = "0.0.91"
 description = "A wrapper around Kombu to use RabbitMQ, specialy on docker images"
 authors = ["Vlaams Instituut voor de Zee (VLIZ), João Santos <jotaflame@gmail.com>"]
 readme = "README.rst"
