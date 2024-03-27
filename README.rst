@@ -1,7 +1,7 @@
 rab_the_bit
 ===================================
 
-A wrapper around Kombu to use RabbitMQ, specialy on docker images
+A wrapper around Kombu to use RabbitMQ, specially on docker images
 
 Started on 2023-08-18
 

@@ -12,14 +12,17 @@ def errback(exc, interval):
 class RabbitProducer:
     """
     This class is responsible for producing and sending messages
-        to a RabbitMQ queue
+        to a RabbitMQ topic. 
+    No queue is ever defined. Messages are published to a topic
+    and consumers are responsible for defining queues.
     """
 
     def __init__(
         self,
         amqp_url,
         exchange_name,
-        queue_name,
+        # queue_name,
+        # routing_key,
         connection_args={},
         exchange_args={"type": "topic"},
         queue_args={},
@@ -50,15 +53,15 @@ class RabbitProducer:
         )
 
         self.exchange = Exchange(**exchange_args)
-        queue_args.update(
-            {
-                "name": queue_name,
-                "exchange": self.exchange,
-                "channel": self.connection,
-            }
-        )
+        # queue_args.update(
+        #     {
+        #         "name": queue_name,
+        #         "exchange": self.exchange,
+        #         "channel": self.connection,
+        #     }
+        # )
 
-        self.queue = Queue(**queue_args)
+        # self.queue = Queue(**queue_args)
 
     def send_message(self, message, routing_key):
         """
@@ -68,13 +71,13 @@ class RabbitProducer:
         :param routing_key: The routing key for the message.
         """
         self.queue.routing_key = routing_key
-        self.queue.declare()
+        # self.queue.declare()
         with self.connection.Producer() as producer:
             producer.publish(
                 message,
                 exchange=self.exchange,
                 routing_key=routing_key,
-                declare=[self.queue],
+                # declare=[self.queue],
             )
 
     def produce(self, message, routing_key):
@@ -103,7 +106,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         exchange_to_consume,
         queue_to_consume,
         exchange_to_deliver,
-        queue_to_deliver,
+        # queue_to_deliver,
         connection_args={},
         exchange_args={"type": "topic"},
         queue_args={},
@@ -117,7 +120,8 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         :param exchange_to_consume: The name of the exchange to consume from.
         :param queue_to_consume: The name of the queue to consume from.
         :param exchange_to_deliver: The name of the exchange to deliver to.
-        :param queue_to_deliver: The name of the queue to deliver to.
+        DEPRECATED :param queue_to_deliver: The name of the queue to deliver to.
+                    Producer MUST only produce to a topic. Not a queue
         :param connection_args: Additional arguments for the Connection.
         :param exchange_args: Additional arguments for the Exchange.
         :param queue_args: Additional arguments for the Queue.
@@ -127,12 +131,6 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         # Connection configuration
         connection_args.update({"hostname": amqp_url})
         self.connection = Connection(**connection_args)
-
-        # We need to connect to a exchange to be able to get/deliver
-        #   from a Queue.
-        # Think of exchange as the only way to interact with queue.
-        # The exchange is just a stream, no memory
-        # The queue drinks from the exchange, keeps in memory until read upon.
 
         # Consumer configuration, where to get messages from
         exchange_args.update(
@@ -161,7 +159,7 @@ class RabbitConsumerProducer(ConsumerProducerMixin):
         self.rabbit_producer = RabbitProducer(
             amqp_url,
             exchange_name=exchange_to_deliver,
-            queue_name=queue_to_deliver,
+            # queue_name=queue_to_deliver,
             connection_args=connection_args,
             exchange_args=exchange_args,
             log=self.log,
