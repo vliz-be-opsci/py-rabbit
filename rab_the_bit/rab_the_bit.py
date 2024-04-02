@@ -25,7 +25,7 @@ class RabbitProducer:
         # routing_key,
         connection_args={},
         exchange_args={"type": "topic"},
-        queue_args={},
+        # queue_args={},
         log=None,
         errback=None,
     ):
@@ -70,7 +70,7 @@ class RabbitProducer:
         :param message: The message to send.
         :param routing_key: The routing key for the message.
         """
-        self.queue.routing_key = routing_key
+        # self.queue.routing_key = routing_key
         # self.queue.declare()
         with self.connection.Producer() as producer:
             producer.publish(
